@@ -38,9 +38,11 @@ http.createServer(function (req, res) {
 		req.on("end", function () {
 			console.log("Received params:", qs.parse(body));
 			var name = qs.parse(body).name;
+			var age = qs.parse(body).age;
 
 			var contact = new _ContactList.Contact({
-				name: name
+				name: name,
+				age: age
 			});
 
 			return contacts.load().then(function () {
@@ -55,6 +57,17 @@ http.createServer(function (req, res) {
 				res.write("Error saving contact.");
 				res.end();
 			});
+		});
+	} else if (req.url === '/all-contacts') {
+		return contacts.load().then(function () {
+			console.log(contacts);
+			console.log(contacts["list"]);
+		}).then(function () {
+			for (var i = 0; i < contacts["list"].length; i++) {
+				res.write(JSON.stringify(contacts["list"][i]) + " \n");
+			}
+
+			res.end();
 		});
 	} else
 		// if none the urls above match, search for file in public folder

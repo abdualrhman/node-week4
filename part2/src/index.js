@@ -27,9 +27,11 @@ http
 	    req.on("end", () => {
 	    	console.log("Received params:", qs.parse(body));
 		    const name = qs.parse(body).name;
+		    const age = qs.parse(body).age;
 
 			const contact = new Contact({
-				name: name
+				name: name,
+				age: age
 			});
 
 			return contacts.load()
@@ -48,6 +50,24 @@ http
 				res.end();
 			})
 	    });
+	} 
+	else if(req.url === '/all-contacts'){
+		return contacts.load()
+		.then(()=> {
+			console.log(contacts);
+			console.log(contacts["list"]);
+		})
+		.then(()=>{
+			for(let i = 0; i < contacts["list"].length; i++){
+				res.write(`${JSON.stringify(contacts["list"][i])} \n`);	
+			}
+			
+			res.end();
+		});
+		
+
+		
+
 	}
 	else
 	// if none the urls above match, search for file in public folder

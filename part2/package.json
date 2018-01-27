@@ -1,0 +1,19 @@
+{
+  "name": "part2",
+  "version": "1.0.0",
+  "description": "part 2 of nodejs week 2 assignment",
+  "main": "index.js",
+  "scripts": {
+    "start": "node dist/index.js",
+    "watch": "babel -w src/ -d dist/ --source-maps",
+    "build": "babel src/ -d dist/ --source-maps",
+    "server": "nodemon",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "T1ish",
+  "license": "ISC",
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.6.1"
+  }
+}

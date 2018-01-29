@@ -29,7 +29,7 @@ http.createServer(function (req, res) {
 		return res.end();
 	}
 
-	if (req.url === '/add-contact') {
+	if (req.url === '/add-contact' && req.method === 'POST') {
 		var body = "";
 		req.on("data", function (chunk) {
 			body += chunk;
@@ -37,13 +37,17 @@ http.createServer(function (req, res) {
 
 		req.on("end", function () {
 			console.log("Received params:", qs.parse(body));
-			var name = qs.parse(body).name;
-			var age = qs.parse(body).age;
+			var obj = qs.parse(body);
 
-			var contact = new _ContactList.Contact({
-				name: name,
-				age: age
-			});
+			var contact = void 0;
+			try {
+				contact = new _ContactList.Contact(obj);
+			} catch (err) {
+				console.log(err);
+				res.statusCode = 401;
+				res.write(err);
+				return res.end();
+			}
 
 			return contacts.load().then(function () {
 				contacts.addContact(contact);
@@ -61,12 +65,15 @@ http.createServer(function (req, res) {
 	} else if (req.url === '/all-contacts') {
 		return contacts.load().then(function () {
 			console.log(contacts);
-			console.log(contacts["list"]);
-		}).then(function () {
-			for (var i = 0; i < contacts["list"].length; i++) {
-				res.write(JSON.stringify(contacts["list"][i]) + " \n");
-			}
+			// console.log(contacts["list"]);
 
+			res.write(JSON.stringify(contacts.list));
+
+			res.end();
+		}).catch(function (err) {
+			console.log(err);
+			res.statusCode = 500;
+			res.write("Internal server error");
 			res.end();
 		});
 	} else

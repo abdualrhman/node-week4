@@ -6,6 +6,9 @@ const readFile = util.promisify(fs.readFile);
 
 class Contact {
     constructor(obj) {
+    	if(!obj || !obj.name)
+    		throw "Name is needed to create a new person.";
+
         this.name = obj.name;
         this.age = obj.age;
     };

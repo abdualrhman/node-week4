@@ -18,7 +18,7 @@ http
 		return res.end();
 	}
 
-	if(req.url === '/add-contact'){
+	if(req.url === '/add-contact' && req.method === 'POST'){
 		let body = "";
 		req.on("data", chunk => {
 	        body += chunk;
@@ -26,13 +26,18 @@ http
 
 	    req.on("end", () => {
 	    	console.log("Received params:", qs.parse(body));
-		    const name = qs.parse(body).name;
-		    const age = qs.parse(body).age;
+	    	const obj = qs.parse(body);
 
-			const contact = new Contact({
-				name: name,
-				age: age
-			});
+	    	let contact;
+	    	try{
+				contact = new Contact(obj);
+	    	}
+	    	catch(err){
+	    		console.log(err);
+	    		res.statusCode = 401;
+	    		res.write(err);
+	    		return res.end();
+	    	}
 
 			return contacts.load()
 			.then(() => {
@@ -55,19 +60,18 @@ http
 		return contacts.load()
 		.then(()=> {
 			console.log(contacts);
-			console.log(contacts["list"]);
-		})
-		.then(()=>{
-			for(let i = 0; i < contacts["list"].length; i++){
-				res.write(`${JSON.stringify(contacts["list"][i])} \n`);	
-			}
+			// console.log(contacts["list"]);
+
+			res.write(JSON.stringify(contacts.list));
 			
 			res.end();
+		})
+		.catch(err => {
+			console.log(err);
+			res.statusCode = 500;
+			res.write("Internal server error");
+			res.end();
 		});
-		
-
-		
-
 	}
 	else
 	// if none the urls above match, search for file in public folder

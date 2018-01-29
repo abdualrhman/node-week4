@@ -14,6 +14,8 @@ var Contact = function () {
 	function Contact(obj) {
 		_classCallCheck(this, Contact);
 
+		if (!obj || !obj.name) throw "Name is needed to create a new person.";
+
 		this.name = obj.name;
 		this.age = obj.age;
 	}

@@ -21,13 +21,15 @@ var Contact = function () {
 	}
 
 	_createClass(Contact, [{
-		key: "addPhone",
-		value: function addPhone(number) {
-
-			return this.phoneNumber = number;
-		}
-	}, {
 		key: "call",
+
+		// addPhone(number) {
+
+		//     return this.phoneNumber = number;
+		// }
+
+		// set phoneNumber
+
 		value: function call() {
 
 			if (this.phoneNumber) console.log("Calling " + this.name + " at " + this.phoneNumber);else console.log(this.name + " has no phone number saved.");

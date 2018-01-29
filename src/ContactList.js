@@ -12,10 +12,13 @@ class Contact {
         this.name = obj.name;
         this.age = obj.age;
     };
-    addPhone(number) {
+    // addPhone(number) {
 
-        return this.phoneNumber = number;
-    }
+    //     return this.phoneNumber = number;
+    // }
+
+    // set phoneNumber
+
      call() {
 
          if (this.phoneNumber)

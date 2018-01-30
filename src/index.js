@@ -3,8 +3,8 @@ import * as fs from "fs";
 // querystring is used to parse url parameters to an object
 // also a core module
 import * as qs from "querystring";
-const express = require("express");
-const bodyParser = require("body-parser");
+import express from "express";
+import bodyParser from "body-parser";
 
 import { Contact, ContactList } from"./ContactList.js";
 

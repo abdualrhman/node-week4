@@ -18,27 +18,32 @@ var Contact = function () {
 
 		this.name = obj.name;
 		this.age = obj.age;
+		this._phone = obj.phone;
 	}
 
 	_createClass(Contact, [{
 		key: "call",
-
-		// addPhone(number) {
-
-		//     return this.phoneNumber = number;
-		// }
-
-		// set phoneNumber
-
 		value: function call() {
-
-			if (this.phoneNumber) console.log("Calling " + this.name + " at " + this.phoneNumber);else console.log(this.name + " has no phone number saved.");
+			if (this.phone) console.log("Calling " + this.name + " at " + this.phone);else console.log(this.name + " has no phone number saved.");
 		}
 	}, {
 		key: "birthday",
 		value: function birthday() {
-
 			console.log("Wishing " + this.name + " a happy " + (this.age + 1) + "th birthday!");
+		}
+	}, {
+		key: "phone",
+
+		// addPhone(number) {
+
+		//     return this.phone = number;
+		// }
+
+		get: function get() {
+			return this._phone;
+		},
+		set: function set(number) {
+			this._phone = number;
 		}
 	}]);
 

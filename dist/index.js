@@ -12,20 +12,26 @@ var _querystring = require("querystring");
 
 var qs = _interopRequireWildcard(_querystring);
 
+var _express = require("express");
+
+var _express2 = _interopRequireDefault(_express);
+
+var _bodyParser = require("body-parser");
+
+var _bodyParser2 = _interopRequireDefault(_bodyParser);
+
 var _ContactList = require("./ContactList.js");
+
+function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
 
-var express = require("express");
 // querystring is used to parse url parameters to an object
 // also a core module
-
-var bodyParser = require("body-parser");
-
 var contacts = new _ContactList.ContactList("./src/contacts.json");
 var port = 8080;
 
-var app = express();
+var app = (0, _express2.default)();
 app.listen(port, function () {
 	console.log("Server started at port " + port);
 });
@@ -35,8 +41,8 @@ app.use(function (req, res, next) {
 	next();
 });
 
-app.use("/public", express.static('public'));
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use("/public", _express2.default.static('public'));
+app.use(_bodyParser2.default.urlencoded({ extended: true }));
 
 // app.use((req, res, next) => {
 // 	console.log("Second middleware");

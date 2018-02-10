@@ -5,10 +5,18 @@
 </head>
 <body>
 	<script type="text/javascript">
-		fetch("/all-contacts")
+		fetch("/contacts")
 		.then(res => res.json())
-		.then(console.log);
+		.then((data)=>{
+			for(value of data){
+				let list = document.querySelector('#list')
+				let li = document.createElement('li')
+				li.innerHTML = `name: ${value.name}, age: ${value.age}`;
+				list.appendChild(li)
+			}
+		});
 	</script>
 	<a href="/all-contacts">All Contacts</a>
+	<ul id="list"></ul>
 </body>
 </html>

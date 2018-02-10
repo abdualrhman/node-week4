@@ -22,6 +22,8 @@ var _bodyParser2 = _interopRequireDefault(_bodyParser);
 
 var _ContactList = require("./ContactList.js");
 
+var _car = require("./car.js");
+
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 function _interopRequireWildcard(obj) { if (obj && obj.__esModule) { return obj; } else { var newObj = {}; if (obj != null) { for (var key in obj) { if (Object.prototype.hasOwnProperty.call(obj, key)) newObj[key] = obj[key]; } } newObj.default = obj; return newObj; } }
@@ -43,20 +45,14 @@ app.use(function (req, res, next) {
 
 app.use("/public", _express2.default.static('public'));
 app.use(_bodyParser2.default.urlencoded({ extended: true }));
-
-// app.use((req, res, next) => {
-// 	console.log("Second middleware");
-// 	if(req.url === "/")
-// 		console.log("Index request");
-// 	next();
-// });
+app.use(_bodyParser2.default.json());
 
 app.get("/", function (req, res) {
 	// console.log("get 1");
 	res.send("This is the webserver index.");
 });
 
-app.post("/add-contact", function (req, res) {
+app.post("/contact", function (req, res) {
 	// console.log("post 2");
 	var obj = req.body;
 	console.log("Incoming user: " + JSON.stringify(obj));
@@ -78,85 +74,75 @@ app.post("/add-contact", function (req, res) {
 		res.status(500).send(err);
 	});
 });
+app.get('/contacts', function (req, res) {
+	return contacts.load().then(function () {
+		res.json(contacts.list);
+	}).catch(function (err) {
+		res.status(500).send(err);
+	});
+});
+app.get('/contacts/:id', function (req, res) {
+	var id = req.params.id;
+	return contacts.load().then(function () {
+		res.json(contacts.list[id - 1]);
+	}).catch(res.err);
+});
 
-// http
-// .createServer((req, res) => {
-// 	// log the incoming request
-// 	console.log(req.method, req.url);
+app.get('/contact/:id/birthday', function (req, res) {
+	var id = req.params.id;
+	return contacts.load().then(function () {
+		var contact = new _ContactList.Contact(contacts.list[id - 1]);
+		res.send(contact.birthday());
+		var contacts1 = new _ContactList.ContactList("./src/contacts1.json");
+		return contacts1.load().then(function () {
+			contact.birthday();
+			contacts1.addContact(contact);
+			contacts1.save();
+		});
+	}).catch(function (err) {
+		res.status(500).send(err);
+	});
+});
+app.get('/contact/:id/cars', function (req, res) {
+	var id = req.params.id;
+	return contacts.load().then(function () {
+		res.json(contacts.list[id - 1].cars);
+	}).catch(function (err) {
+		res.send(err);
+	});
+});
 
-// 	if(req.url === '/'){
-// 		res.write("This is the webserver index.")
-// 		return res.end();
-// 	}
+app.delete('/delete/:id', function (req, res) {
+	var id = req.params.id;
+	return contacts.load().then(function () {
+		return res.send(contacts.list.pop(id));
+	}).catch(function (err) {
+		res.send(err);
+	});
+});
 
-// 	if(req.url === '/add-contact' && req.method === 'POST'){
-// 		let body = "";
-// 		req.on("data", chunk => {
-// 	        body += chunk;
-// 	    });
-
-// 	    req.on("end", () => {
-// 	    	console.log("Received params:", qs.parse(body));
-// 	    	const obj = qs.parse(body);
-
-// 	    	let contact;
-// 	    	try{
-// 				contact = new Contact(obj);
-// 	    	}
-// 	    	catch(err){
-// 	    		console.log(err);
-// 	    		res.statusCode = 401;
-// 	    		res.write(err);
-// 	    		return res.end();
-// 	    	}
-
-// 			return contacts.load()
-// 			.then(() => {
-// 				contacts.addContact(contact);
-// 				contacts.save();
-// 			})
-// 			.then(() => {
-// 				res.write(`Successfully saved contact: ${ contact.name }`);
-// 				res.end();
-// 			})
-// 			.catch((err) => {
-// 				console.log("Error saving contact:", err);
-// 				res.statusCode = 500;
-// 				res.write("Error saving contact.");
-// 				res.end();
-// 			})
-// 	    });
-// 	} 
-// 	else if(req.url === '/all-contacts'){
-// 		return contacts.load()
-// 		.then(()=> {
-// 			console.log(contacts);
-// 			// console.log(contacts["list"]);
-
-// 			res.write(JSON.stringify(contacts.list));
-
-// 			res.end();
-// 		})
-// 		.catch(err => {
-// 			console.log(err);
-// 			res.statusCode = 500;
-// 			res.write("Internal server error");
-// 			res.end();
-// 		});
-// 	}
-// 	else
-// 	// if none the urls above match, search for file in public folder
-// 		fs.readFile(`./public${ req.url }`, "utf8", (err, data) => {
-// 			if(err){
-// 				console.log("Error reading file:", err);
-// 				res.statusCode = 404;
-// 				res.write("File not found.");
-// 				return res.end();
-// 			}
-// 			// console.log("Data:", data);
-// 			res.write(data);
-// 			res.end();
-// 		});
+// app.delete('/delete/:id', (req, res)=>{
+// 	const id = req.params.id;
+// 	return contacts.load()
+// 	.then(() =>{
+// 		res.json(contacts.list[id - 1]);
+// 	})
+// 	.then(()=>{
+// 		return res.send(contacts.list.pop(id))
+// 	})
+// 	.catch(res.err)
 // })
-// .listen(8080);
+
+///////////////////
+
+var newCar = new _car.Car({
+	color: 'red',
+	manufacturer: 'Ford',
+	model: 'focus'
+
+});
+
+app.get('/car', function (req, res) {
+	res.status(200).send(JSON.stringify(newCar));
+});
 //# sourceMappingURL=index.js.map

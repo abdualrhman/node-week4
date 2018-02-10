@@ -6,35 +6,93 @@ const readFile = util.promisify(fs.readFile);
 
 class Contact {
 	constructor(obj) {
-		if(!obj || !obj.name)
-			throw "Name is needed to create a new person.";
+		if(!obj)
+			throw "Need an object to instantiate Contact properties.";
 
+		// console.log("obj:", obj);
+		this.cars = obj.cars;
 		this.name = obj.name;
 		this.age = obj.age;
-		this._phone = obj.phone;
+		this.phone = obj.phone;
 	};
-  // addPhone(number) {
 
-  //     return this.phone = number;
-  // }
+	set name (name){
+		if(!name)
+			throw "Name is needed to create a person";
+		else if(typeof name !== "string")
+			throw "Contact.name needs to be a string."
+		else if(name.length < 4)
+			throw "Contact.name needs to be at least 4 characters."
+		this._name = name;
+	}
+
+	get name(){
+		return this._name;
+	}
+  
 
   get phone(){
   	return this._phone;
   }
 
-  set phone(number){
-  	this._phone = number;
+  set phone(phone){
+  	if(!phone)
+  		return this._phone = null;
+
+  	if(typeof phone === "string")
+  		;
+  	else if(typeof phone === "number")
+  		phone = phone.toString();
+  	else
+  		throw "Contact.phone should be a string or a number."
+
+  	if(phone.length < 8)
+  		throw "Contact.phone should be at least 8 digits long."
+
+  	this._phone = phone;
+  }
+  get age(){
+  	return this._age;
+  }
+  set age(age){
+  	if(!age)
+  		throw 'no age provided'
+  	this._age = age;
+  }
+
+    get cars(){
+  	return this._cars;
+  }
+  set cars(cars){
+  
+  	this._cars = cars;
+  }
+
+  // this helps JSON.stringify convert getter properties correctly
+  // https://stackoverflow.com/questions/42107492/json-stringify-es6-class-property-with-getter-setter
+  toJSON (){
+  	return {
+  		name: this.name,
+  		age: this.age,
+  		phone: this.phone,
+  		cars: this.cars
+  	}
   }
 
   call() {
   	if (this.phone)
-  		console.log("Calling " + this.name + " at " + this.phone);
+  		return `Calling ${ this.name } at this.phone`;
   	else
-  		console.log(this.name + " has no phone number saved.");
+  		return `${ this.name } has no phone number saved`;
 
   }
   birthday() {
-  	console.log("Wishing " + this.name + " a happy " + (this.age+1) + "th birthday!");
+  	let newAge = parseInt(this.age);
+  	 ++newAge;
+  	return `Wishing ${ this.name } a happy ${ newAge }th birthday!`;
+  }
+  cars(){
+  	return 'hello'
   }
 };
 
@@ -56,23 +114,16 @@ class ContactList {
 
 	load(){
 		const readFilePromise = readFile(this.filename, "utf8");
+		// clean the list, since we'll add all contacts again
+		this.list = [];
 
 		return readFilePromise
 		.then(fileString => {
-			this.list = JSON.parse(fileString)
-			.map(contactObj => new Contact(contactObj));
+			JSON.parse(fileString)
+			.forEach(contactObj => this.addContact(new Contact(contactObj)));
 
 			return Promise.resolve(null);
 		});
-		// return new Promise((resolve, reject) => {
-		// 	readFilePromise
-		// 	.then(fileString => {
-		// 		this.list = JSON.parse(fileString)
-		// 		.map(contactObj => new Contact(contactObj));
-
-		// 		resolve(null);
-		// 	});
-		// });
 	}
 };
 

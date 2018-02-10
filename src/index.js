@@ -5,8 +5,8 @@ import * as fs from "fs";
 import * as qs from "querystring";
 import express from "express";
 import bodyParser from "body-parser";
-
 import { Contact, ContactList } from"./ContactList.js";
+
 
 let contacts = new ContactList("./src/contacts.json");
 const port = 8080;
@@ -23,20 +23,16 @@ app.use((req, res, next) => {
 
 app.use("/public", express.static('public'));
 app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json())
 
-// app.use((req, res, next) => {
-// 	console.log("Second middleware");
-// 	if(req.url === "/")
-// 		console.log("Index request");
-// 	next();
-// });
+
 
 app.get("/", (req, res) => {
 	// console.log("get 1");
 	res.send("This is the webserver index.");
 });
 
-app.post("/add-contact", (req, res) => {
+app.post("/contact", (req, res) => {
 	// console.log("post 2");
 	const obj = req.body;
 	console.log(`Incoming user: ${ JSON.stringify(obj) }`);
@@ -62,84 +58,97 @@ app.post("/add-contact", (req, res) => {
 		res.status(500).send(err);
 	})
 });
+app.get('/contacts', (req, res)=>{
+	return contacts.load()
+	.then(()=>{
+		res.json(contacts.list)
+	})
+	.catch((err)=>{
+		res
+		.status(500)
+		.send(err)
+	})
+})
+app.get('/contacts/:id', (req, res) => {
+	const id = req.params.id;
+	return contacts.load()
+	.then(() =>{
+		res.json(contacts.list[id - 1]);
+	})
+	.catch(res.err);
+});
 
-// http
-// .createServer((req, res) => {
-// 	// log the incoming request
-// 	console.log(req.method, req.url);
+app.get('/contact/:id/birthday', (req, res)=>{
+		const id = req.params.id;
+	return contacts.load()
+	.then(()=>{
+		let contact = new Contact(contacts.list[id-1])
+		res.send(contact.birthday());
+		let contacts1 = new ContactList("./src/contacts1.json");
+		return contacts1.load()
+		.then(()=>{
+			contact.birthday()
+			contacts1.addContact(contact)
+			contacts1.save()
+		})
+		
+	})
+	.catch((err)=>{
+		res
+		.status(500)
+		.send(err)
+	})})
+app.get('/contact/:id/cars' , (req , res) => {
+	const id = req.params.id;
+	return contacts.load()
+	.then(()=>{
+			res.json(contacts.list[id-1].cars);
+	})
+	.catch((err)=>{res.send(err)})
+})
 
-// 	if(req.url === '/'){
-// 		res.write("This is the webserver index.")
-// 		return res.end();
-// 	}
 
-// 	if(req.url === '/add-contact' && req.method === 'POST'){
-// 		let body = "";
-// 		req.on("data", chunk => {
-// 	        body += chunk;
-// 	    });
+app.delete('/delete/:id', (req, res)=>{
+	const id = req.params.id;
+	return contacts.load()
+	.then(() =>{
+		return res.send(contacts.list.pop(id))
+	})
+	.catch((err)=>{
+		res.send(err)
+	})
+})
 
-// 	    req.on("end", () => {
-// 	    	console.log("Received params:", qs.parse(body));
-// 	    	const obj = qs.parse(body);
-
-// 	    	let contact;
-// 	    	try{
-// 				contact = new Contact(obj);
-// 	    	}
-// 	    	catch(err){
-// 	    		console.log(err);
-// 	    		res.statusCode = 401;
-// 	    		res.write(err);
-// 	    		return res.end();
-// 	    	}
-
-// 			return contacts.load()
-// 			.then(() => {
-// 				contacts.addContact(contact);
-// 				contacts.save();
-// 			})
-// 			.then(() => {
-// 				res.write(`Successfully saved contact: ${ contact.name }`);
-// 				res.end();
-// 			})
-// 			.catch((err) => {
-// 				console.log("Error saving contact:", err);
-// 				res.statusCode = 500;
-// 				res.write("Error saving contact.");
-// 				res.end();
-// 			})
-// 	    });
-// 	} 
-// 	else if(req.url === '/all-contacts'){
-// 		return contacts.load()
-// 		.then(()=> {
-// 			console.log(contacts);
-// 			// console.log(contacts["list"]);
-
-// 			res.write(JSON.stringify(contacts.list));
-			
-// 			res.end();
-// 		})
-// 		.catch(err => {
-// 			console.log(err);
-// 			res.statusCode = 500;
-// 			res.write("Internal server error");
-// 			res.end();
-// 		});
-// 	}
-// 	else
-// 	// if none the urls above match, search for file in public folder
-// 		fs.readFile(`./public${ req.url }`, "utf8", (err, data) => {
-// 			if(err){
-// 				console.log("Error reading file:", err);
-// 				res.statusCode = 404;
-// 				res.write("File not found.");
-// 				return res.end();
-// 			}
-// 			// console.log("Data:", data);
-// 			res.write(data);
-// 			res.end();
-// 		});
+// app.delete('/delete/:id', (req, res)=>{
+// 	const id = req.params.id;
+// 	return contacts.load()
+// 	.then(() =>{
+// 		res.json(contacts.list[id - 1]);
+// 	})
+// 	.then(()=>{
+// 		return res.send(contacts.list.pop(id))
+// 	})
+// 	.catch(res.err)
 // })
-// .listen(8080);
+
+///////////////////
+
+import {Car}from './car.js'
+
+let newCar = new Car({
+	color : 'red',
+	manufacturer: 'Ford',
+	model : 'focus'
+
+})
+
+app.get('/car', (req, res)=>{
+	res
+	.status(200)
+	.send(JSON.stringify(newCar))
+})
+
+
+
+
+
